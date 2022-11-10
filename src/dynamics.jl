@@ -5,7 +5,7 @@ Base.@kwdef struct SIRSolution
 	K :: Vector{Matrix{Float64}}
 end
 
-function (sol::SIRSolution)(t::Float64)
+function (sol::SIRSolution)(t::Real)
 	@assert t <= sol.tspan[2] "Time span of solution $(sol.tspan) - got $t"
 	return SIRState(sol.sol(t), sol.K, sol.parameters)
 end
@@ -15,6 +15,11 @@ function Base.getindex(sol::SIRSolution, tvals::AbstractVector, i, g, a)
 	return map(t -> sol.sol(t)[idx], tvals)
 end
 
+"""
+	simulate(X::SIRState, tspan)
+
+Return a `SIRSolution` object.
+"""
 function simulate(X::SIRState, tspan)
 	u0 = vec(X)
 	p = (sir = X.parameters, K = [r.K for r in regions(X)])
