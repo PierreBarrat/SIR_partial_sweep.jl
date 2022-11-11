@@ -15,7 +15,7 @@ include("dynamics.jl")
 export SIRSolution, simulate
 
 include("tools.jl")
-export set_infected!, frequency
+export set_infected, frequency
 
 include("analytics.jl")
 export equilibrium

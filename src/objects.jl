@@ -6,6 +6,7 @@
 Parameters of the SIR.
 
 ## Arguments
+- `N`: number of virus variants.
 - `α`, `γ`, `δ`: "base" parameters of the SIR (simplified equations below):
 ```math
 dS/dt = -αSI + γR
@@ -96,23 +97,11 @@ population(r::SIRRegion, a) = population(r.S, r.I, r.R, r.K, a)
 population(r::SIRRegion) = map(a -> population(r, a), 1:size(r))
 
 
-"""
-	cross_immunity(N::Int, backward::Real, forward::Real)
-"""
-function cross_immunity(N::Int, backward::Real, forward::Real)
-	K = diagm(ones(N))
-	for a in 1:N, b in (a+1):N
-		K[a,b] = backward # cross-immunity from next virus to previous virus (a < b)
-		K[b,a] = forward
-	end
-	return K
-end
-cross_immunity(N::Int) = diagm(ones(N))
-
-
-
 ################## SIRState ##################
 
+"""
+	SIRState(; regions, parameters)
+"""
 Base.@kwdef mutable struct SIRState
 	parameters :: SIRParameters
 	regions :: Vector{SIRRegion}
@@ -130,12 +119,17 @@ Base.@kwdef mutable struct SIRState
 end
 
 """
-	SIRState(parameters::SIRParameters; I0=0., R0=0.)
+	SIRState(parameters::SIRParameters; I0=0., R0=0., b=0., f=0.)
 """
 function SIRState(parameters::SIRParameters; I0=0., R0=0., b=0., f=0.)
 	regions = [SIRRegion(parameters.N; I0, R0, b, f) for m in 1:parameters.M]
 	return SIRState(parameters, regions)
 end
+"""
+	SIRState(dat::Vector{Float64}, Ks, parameters::SIRParameters)
+
+Create `SIRState` from a vector and an array of cross-immunity matrices `Ks`.
+"""
 function SIRState(dat::Vector{Float64}, Ks, parameters::SIRParameters)
 	@assert length(dat) == parameters.M * parameters.N * 3
 	regions = SIRRegion[]
@@ -157,6 +151,8 @@ function Base.getindex(X::SIRState, i::Int, g, a)
 end
 
 """
+	vec(X::SIRState)
+
 Transform `X::SIRState` into a vector for use in differential equation solvers.
 """
 Base.vec(X::SIRState) = vcat(map(vec, X.regions)...)
