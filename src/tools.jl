@@ -51,7 +51,7 @@ function _frequency(X::SIRState, i::Colon, a)
 end
 
 """
-	frequency(SIRSolution, i, a)
+	frequency(sol::SIRSolution, tvals, i, a)
 
 Frequency of infections by virus `a` in region `i`.
 """
@@ -59,6 +59,11 @@ function frequency(sol::SIRSolution, tvals, i, a)
 	I = sol[tvals, i, :I, :]
 	return map(x -> x[a], I) ./ map(sum, I)
 end
+"""
+	frequency(sol::SIRSolution, tvals, a)
+
+Frequency of infections by virus `a` accross regions.
+"""
 function frequency(sol::SIRSolution, tvals, a)
 	mean(frequency(sol, tvals, i, a) for i in 1:sol.parameters.M)
 end
