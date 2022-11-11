@@ -9,7 +9,7 @@ using StatsBase
 import Base: vec, length, size, getindex
 
 include("objects.jl")
-export SIRParameters, SIRRegion, SIRState, regions, parameters, cross_immunity
+export SIRParameters, SIRRegion, SIRState, cross_immunity
 
 include("dynamics.jl")
 export SIRSolution, simulate
