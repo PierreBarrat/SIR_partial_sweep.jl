@@ -49,13 +49,18 @@ Base.@kwdef struct SIRRegion
 end
 
 """
-	SIRRegion(N::Int, I::AbstractVector, R::AbstractVector; b, f)
-	SIRRegion(N::Int; I0 = 0., R0 = 0., b = 0., f = 0.)
+	SIRRegion(
+		N::Int, I::AbstractVector, R::AbstractVector = zeros(N);
+		b=0., f=0., K = cross_immunity(N, b, f)
+	)
+	SIRRegion(N::Int; I0 = 0., R0 = 0., b = 0., f = 0., K = cross_immunity(N, b, f))
 
 `N`: number of viruses.
 """
-function SIRRegion(N::Int, I::AbstractVector, R::AbstractVector = zeros(N); b=0., f=0.)
-	K = cross_immunity(N, b, f)
+function SIRRegion(
+	N::Int, I::AbstractVector, R::AbstractVector = zeros(N);
+	b=0., f=0., K = cross_immunity(N, b, f)
+)
 	S = ones(N) - K*I - R
 
 	for (a, (s, i, r)) in enumerate(zip(S, I, R))
@@ -65,8 +70,8 @@ function SIRRegion(N::Int, I::AbstractVector, R::AbstractVector = zeros(N); b=0.
 
 	return SIRRegion(; S, I, R, K)
 end
-function SIRRegion(N::Int; I0 = 0., R0 = 0., b = 0., f = 0.)
-	return SIRRegion(N, I0 * ones(N), R0 * ones(N); b, f)
+function SIRRegion(N::Int; I0 = 0., R0 = 0., b = 0., f = 0., K = cross_immunity(N, b, f))
+	return SIRRegion(N, I0 * ones(N), R0 * ones(N); b, f, K)
 end
 
 
